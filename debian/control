@@ -1,0 +1,28 @@
+Source: qssh
+Priority: optional
+Maintainer: coolshou <coolshou2060@gmail.com>
+Build-Depends: debhelper-compat (= 13), botan, qtbase5-dev
+Standards-Version: 4.6.0
+Section: libs
+Homepage: https://github.com/sandsmark/QSsh
+#Vcs-Browser: https://salsa.debian.org/debian/qssh
+#Vcs-Git: https://salsa.debian.org/debian/qssh.git
+Rules-Requires-Root: no
+
+Package: libqssh-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: libqssh (= ${binary:Version}), ${misc:Depends}
+Description: development files of libqssh
+ QSsh provides SSH and SFTP support for Qt applications without depending on openssh or similar.
+ The aim of this project is to provide an easy way to use these protocols in any Qt application.
+
+Package: libqssh
+Architecture: any
+Multi-Arch: same
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: QSsh provides SSH and SFTP support for Qt applications without depending on openssh or similar.
+ QSsh provides SSH and SFTP support for Qt applications without depending on openssh or similar.
+ The aim of this project is to provide an easy way to use these protocols in any Qt application.
+
