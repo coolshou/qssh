@@ -1,4 +1,6 @@
-add_library(QSsh
+include(GNUInstallDirs)
+
+add_library(QSsh SHARED
     sshsendfacility.cpp
     sshremoteprocess.cpp
     sshpacketparser.cpp
@@ -34,23 +36,26 @@ add_library(QSsh
     opensshkeyfilereader.cpp
     qssh.qrc)
 
-get_property(BOTAN_LIB GLOBAL PROPERTY BOTAN_LIB)
-target_link_libraries( QSsh Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Network Qt${QT_VERSION_MAJOR}::Widgets ${BOTAN_LIB})
+target_link_libraries(QSsh Qt6::Core Qt6::Network Qt6::Widgets botan::botan)
+# define used in ssh_global.h
+target_compile_definitions(QSsh PRIVATE QTCSSH_LIBRARY=1)
 
 # state that anybody linking to us needs to include the current source dir
 target_include_directories(QSsh
+          PRIVATE
+          ${botan_INCLUDE_DIR}
           INTERFACE
 		  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 		  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
-		  $<INSTALL_INTERFACE:include>
-          $<INSTALL_INTERFACE:include/qssh>
+		  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/qssh>
           )
 		  
 #INSTALL RULES
 install(
   DIRECTORY .
-  DESTINATION include
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/qssh
   COMPONENT headers
   FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h"
 )
-install(TARGETS QSsh DESTINATION lib EXPORT QSsh-targets)
+install(TARGETS QSsh EXPORT QSsh-targets RUNTIME LIBRARY )
