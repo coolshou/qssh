@@ -73,7 +73,7 @@ INCLUDEPATH += $${PWD}/src/libs/
 }
 win32-msvc* { 
     LIBS += -Lbotan/
-    LIBS += -lbotan/botan-3.lib
+    LIBS += -lbotan/botan-3
     INCLUDEPATH += $${PWD}/botan/include/public
     # botan-3 require
     CONFIG += c++20 
