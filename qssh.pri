@@ -72,8 +72,8 @@ LIBS += -l$$qtLibraryName(botan-3)
 INCLUDEPATH += $${PWD}/src/libs/
 }
 win32-msvc* { 
-    LIBS += -Lbotan/
-    LIBS += -lbotan/botan-3
+    LIBS += -L$${PWD}/botan/
+    LIBS += -l$${PWD}/botan/botan-3
     INCLUDEPATH += $${PWD}/botan/include/public
     # botan-3 require
     CONFIG += c++20 
