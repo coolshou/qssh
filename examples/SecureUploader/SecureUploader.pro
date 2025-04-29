@@ -20,11 +20,16 @@ HEADERS  += \
 
 include(../../qssh.pri) ## Required for IDE_LIBRARY_PATH and qtLibraryName
 LIBS += \
-    -L$$IDE_LIBRARY_PATH \
+    -L$$IDE_LIBRARY_PATH 
+
 uinx {
-    -l$$qtLibraryName(botan-2) \
+LIBS += \    
+    -l$$qtLibraryName(botan-2) 
 }    
 win32 {    
-    -l$$qtLibraryName(botan-3) \
+LIBS += \    
+    -l$$qtLibraryName(botan-3)
 }
+
+LIBS += \
     -l$$qtLibraryName(QSsh)
