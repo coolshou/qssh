@@ -1,5 +1,6 @@
 include(../../qssh.pri)
-QT += network widgets
+QT += network
+QT -= gui
 
 TARGET=shell
 SOURCES=main.cpp shell.cpp argumentscollector.cpp
