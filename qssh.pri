@@ -69,8 +69,10 @@ CONFIG += depend_includepath
 
 LIBS += -L$$IDE_LIBRARY_PATH
 LIBS += -l$$qtLibraryName(botan-3)
-INCLUDEPATH += $${PWD}/src/libs/
+
 }
+INCLUDEPATH += $${PWD}/src/libs/
+
 win32-msvc* { 
     LIBS += -L$${PWD}/botan/
     LIBS += -l$${PWD}/botan/botan-3
