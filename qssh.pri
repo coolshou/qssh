@@ -75,6 +75,8 @@ win32-msvc* {
     LIBS += -Lbotan/
     LIBS += -lbotan/botan-3.lib
     INCLUDEPATH += $${PWD}/botan/include/public
+    //botan-3 require
+    CONFIG += c++20 
 }
 
 DEFINES += QT_NO_CAST_FROM_ASCII
