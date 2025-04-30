@@ -56,7 +56,7 @@ clang {
     QMAKE_CXXFLAGS += -Wno-gnu-zero-variadic-macro-arguments
 }
 
-#QT += widgets
+QT += widgets
 
 CONFIG += warn_on
 
