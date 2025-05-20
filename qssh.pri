@@ -58,7 +58,7 @@ clang {
 
 QT += widgets
 
-CONFIG += warn_on
+# CONFIG += warn_on
 
 # Find botan2
 CONFIG += link_pkgconfig
@@ -74,7 +74,7 @@ DEFINES += QT_NO_CAST_FROM_ASCII
 DEFINES += QT_NO_CAST_TO_ASCII
 DEFINES += QT_USE_QSTRINGBUILDER
 
-win32-msvc* { 
+win32-msvc* {
     #Don't warn about sprintf, fopen etc being 'unsafe'
     DEFINES += _CRT_SECURE_NO_WARNINGS
 }
