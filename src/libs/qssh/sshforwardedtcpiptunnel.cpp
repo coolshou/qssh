@@ -73,7 +73,8 @@ bool SshForwardedTcpIpTunnel::atEnd() const
 
 qint64 SshForwardedTcpIpTunnel::bytesAvailable() const
 {
-    return QIODevice::bytesAvailable() + d->m_data.count();
+    // return QIODevice::bytesAvailable() + d->m_data.count();
+    return QIODevice::bytesAvailable() + d->m_data.length();
 }
 
 bool SshForwardedTcpIpTunnel::canReadLine() const

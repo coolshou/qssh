@@ -46,7 +46,8 @@ namespace {
             array += elem + ',';
         }
         if (!array.isEmpty()) {
-            array.remove(array.count() - 1, 1);
+            // array.remove(array.count() - 1, 1);
+            array.remove(array.length() - 1, 1);
         }
         return array;
     }

@@ -84,7 +84,8 @@ bool SshDirectTcpIpTunnel::atEnd() const
 
 qint64 SshDirectTcpIpTunnel::bytesAvailable() const
 {
-    return QIODevice::bytesAvailable() + d->m_data.count();
+    // return QIODevice::bytesAvailable() + d->m_data.count();
+    return QIODevice::bytesAvailable() + d->m_data.length();
 }
 
 bool SshDirectTcpIpTunnel::canReadLine() const

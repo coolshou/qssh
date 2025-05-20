@@ -407,7 +407,8 @@ QByteArray SshEncryptionFacility::authenticationKeySignature(const QByteArray &d
               dataToSign.size(), m_rng));
     if (m_authKeyAlgoName.startsWith(SshCapabilities::PubKeyEcdsaPrefix)) {
         // The Botan output is not quite in the format that SSH defines.
-        const int halfSize = signature.count() / 2;
+        // const int halfSize = signature.count() / 2;
+        const int halfSize = signature.length() / 2;
         const BigInt r = BigInt::decode(convertByteArray(signature), halfSize);
         const BigInt s = BigInt::decode(convertByteArray(signature.mid(halfSize)), halfSize);
         signature = AbstractSshPacket::encodeMpInt(r) + AbstractSshPacket::encodeMpInt(s);

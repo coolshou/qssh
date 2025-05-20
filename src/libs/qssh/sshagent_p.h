@@ -80,7 +80,8 @@ private:
     };
 
     struct Packet {
-        bool isComplete() const { return size != 0 && int(size) == data.count(); }
+        // bool isComplete() const { return size != 0 && int(size) == data.count(); }
+        bool isComplete() const { return size != 0 && int(size) == data.length(); }
         void invalidate() { size = 0; data.clear(); }
 
         quint32 size = 0;

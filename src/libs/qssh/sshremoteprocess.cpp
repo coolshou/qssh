@@ -86,7 +86,8 @@ bool SshRemoteProcess::atEnd() const
 
 qint64 SshRemoteProcess::bytesAvailable() const
 {
-    return QIODevice::bytesAvailable() + d->data().count();
+    // return QIODevice::bytesAvailable() + d->data().count();
+    return QIODevice::bytesAvailable() + d->data().length();
 }
 
 bool SshRemoteProcess::canReadLine() const
@@ -121,7 +122,8 @@ void SshRemoteProcess::close()
 
 qint64 SshRemoteProcess::readData(char *data, qint64 maxlen)
 {
-    const qint64 bytesRead = qMin(qint64(d->data().count()), maxlen);
+    // const qint64 bytesRead = qMin(qint64(d->data().count()), maxlen);
+    const qint64 bytesRead = qMin(qint64(d->data().length()), maxlen);
     memcpy(data, d->data().constData(), bytesRead);
     d->data().remove(0, bytesRead);
     return bytesRead;

@@ -71,7 +71,8 @@ namespace {
 
     void printData(const char *name, const QByteArray &data)
     {
-        qCDebug(sshLog, "The client thinks the %s has length %d and is: %s", name, int(data.count()),
+        // qCDebug(sshLog, "The client thinks the %s has length %d and is: %s", name, int(data.count()),
+        qCDebug(sshLog, "The client thinks the %s has length %d and is: %s", name, int(data.length()),
                 data.toHex().constData());
     }
 
@@ -185,7 +186,8 @@ void SshKeyExchange::sendNewKeysPacket(const SshIncomingPacket &dhReply,
         concatenatedData += AbstractSshPacket::encodeString(reply.q_s);
         std::unique_ptr<PK_Ops::Key_Agreement> ecdhOp = m_ecdhKey->create_key_agreement_op(rng, "Raw", "base");
 
-        encodedK = ecdhOp->agree(0, convertByteArray(reply.q_s), reply.q_s.count(), nullptr, 0);
+        // encodedK = ecdhOp->agree(0, convertByteArray(reply.q_s), reply.q_s.count(), nullptr, 0);
+        encodedK = ecdhOp->agree(0, convertByteArray(reply.q_s), reply.q_s.length(), nullptr, 0);
         m_ecdhKey.reset();
     }
 
@@ -218,7 +220,8 @@ void SshKeyExchange::sendNewKeysPacket(const SshIncomingPacket &dhReply,
         QSSH_ASSERT_AND_RETURN(m_serverHostKeyAlgo.startsWith(SshCapabilities::PubKeyEcdsaPrefix));
         const EC_Group domain(SshCapabilities::oid(m_serverHostKeyAlgo));
 
-        const PointGFp point = domain.OS2ECP(convertByteArray(reply.q), reply.q.count());
+        // const PointGFp point = domain.OS2ECP(convertByteArray(reply.q), reply.q.count());
+        const PointGFp point = domain.OS2ECP(convertByteArray(reply.q), reply.q.length());
         ECDSA_PublicKey * const ecdsaKey = new ECDSA_PublicKey(domain, point);
         sigKey.reset(ecdsaKey);
     }
