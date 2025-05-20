@@ -3,6 +3,8 @@ TARGET = QSsh
 QT += network
 DEFINES += QTCSSH_LIBRARY
 
+CONFIG += staticlib
+
 #Enable debug log
 #DEFINES += CREATOR_SSH_DEBUG
 
