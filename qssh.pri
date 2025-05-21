@@ -63,22 +63,22 @@ CONFIG += warn_on
 # Find botan2
 unix {
 CONFIG += link_pkgconfig
-PKGCONFIG += botan-3
+PKGCONFIG += botan-2
 
 CONFIG += depend_includepath
 
 LIBS += -L$$IDE_LIBRARY_PATH
-LIBS += -l$$qtLibraryName(botan-3)
+LIBS += -l$$qtLibraryName(botan-2)
 
 }
 INCLUDEPATH += $${PWD}/src/libs/
 
 win32-msvc* { 
     LIBS += -L$${PWD}/botan/
-    LIBS += -l$${PWD}/botan/botan-3
+    LIBS += -l$${PWD}/botan/botan.lib
     INCLUDEPATH += $${PWD}/botan/include/public
     # botan-3 require
-    CONFIG += c++20 
+    #CONFIG += c++20 
 }
 
 DEFINES += QT_NO_CAST_FROM_ASCII
