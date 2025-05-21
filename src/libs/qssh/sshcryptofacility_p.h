@@ -31,7 +31,12 @@
 #ifndef SSHABSTRACTCRYPTOFACILITY_P_H
 #define SSHABSTRACTCRYPTOFACILITY_P_H
 
+#include <botan/version.h>
+#if BOTAN_VERSION_CODE >= BOTAN_VERSION_CODE_FOR(2, 19, 0)
 #include <botan/filters.h>
+#else
+#include <botan/cipher_filter.h>
+#endif
 #include <botan/block_cipher.h>
 #include <botan/pipe.h>
 #include <botan/bigint.h>
@@ -41,109 +46,115 @@
 #include <QByteArray>
 #include <QScopedPointer>
 
-namespace QSsh {
-namespace Internal {
-
-class SshKeyExchange;
-
-class SshAbstractCryptoFacility
+namespace QSsh
 {
-public:
-    virtual ~SshAbstractCryptoFacility();
+    namespace Internal
+    {
 
-    void clearKeys();
-    void recreateKeys(const SshKeyExchange &kex);
-    QByteArray generateMac(const QByteArray &data, quint32 dataSize) const;
-    quint32 cipherBlockSize() const { return m_cipherBlockSize; }
-    quint32 macLength() const { return m_macLength; }
-    QByteArray sessionId() const { return m_sessionId; }
+        class SshKeyExchange;
 
-    bool isValid() const { return m_hMac && m_pipe; } // TODO: probably more, but this stops segfaulting
+        class SshAbstractCryptoFacility
+        {
+        public:
+            virtual ~SshAbstractCryptoFacility();
 
-protected:
-    enum Mode { CbcMode, CtrMode };
+            void clearKeys();
+            void recreateKeys(const SshKeyExchange &kex);
+            QByteArray generateMac(const QByteArray &data, quint32 dataSize) const;
+            quint32 cipherBlockSize() const { return m_cipherBlockSize; }
+            quint32 macLength() const { return m_macLength; }
+            QByteArray sessionId() const { return m_sessionId; }
 
-    SshAbstractCryptoFacility();
-    void convert(QByteArray &data, quint32 offset, quint32 dataSize) const;
-    Botan::Keyed_Filter *makeCtrCipherMode(const QByteArray &cipher);
+            bool isValid() const { return m_hMac && m_pipe; } // TODO: probably more, but this stops segfaulting
 
-private:
-    SshAbstractCryptoFacility(const SshAbstractCryptoFacility &);
-    SshAbstractCryptoFacility &operator=(const SshAbstractCryptoFacility &);
+        protected:
+            enum Mode
+            {
+                CbcMode,
+                CtrMode
+            };
 
-    virtual QByteArray cryptAlgoName(const SshKeyExchange &kex) const = 0;
-    virtual QByteArray hMacAlgoName(const SshKeyExchange &kex) const = 0;
-    virtual Botan::Keyed_Filter *makeCipherMode(const QByteArray &cipher, const Mode mode) = 0;
-    virtual char ivChar() const = 0;
-    virtual char keyChar() const = 0;
-    virtual char macChar() const = 0;
+            SshAbstractCryptoFacility();
+            void convert(QByteArray &data, quint32 offset, quint32 dataSize) const;
+            Botan::Keyed_Filter *makeCtrCipherMode(const QByteArray &cipher);
 
-    QByteArray generateHash(const SshKeyExchange &kex, char c, quint32 length);
-    void checkInvariant() const;
-    static Mode getMode(const QByteArray &algoName);
+        private:
+            SshAbstractCryptoFacility(const SshAbstractCryptoFacility &);
+            SshAbstractCryptoFacility &operator=(const SshAbstractCryptoFacility &);
 
-    QByteArray m_sessionId;
-    std::unique_ptr<Botan::Pipe> m_pipe;
-    std::unique_ptr<Botan::MessageAuthenticationCode> m_hMac;
-    quint32 m_cipherBlockSize;
-    quint32 m_macLength;
-};
+            virtual QByteArray cryptAlgoName(const SshKeyExchange &kex) const = 0;
+            virtual QByteArray hMacAlgoName(const SshKeyExchange &kex) const = 0;
+            virtual Botan::Keyed_Filter *makeCipherMode(const QByteArray &cipher, const Mode mode) = 0;
+            virtual char ivChar() const = 0;
+            virtual char keyChar() const = 0;
+            virtual char macChar() const = 0;
 
-class SshEncryptionFacility : public SshAbstractCryptoFacility
-{
-public:
-    void encrypt(QByteArray &data) const;
+            QByteArray generateHash(const SshKeyExchange &kex, char c, quint32 length);
+            void checkInvariant() const;
+            static Mode getMode(const QByteArray &algoName);
 
-    void createAuthenticationKey(const QByteArray &privKeyFileContents);
-    QByteArray authenticationAlgorithmName() const;
-    QByteArray authenticationPublicKey() const { return m_authPubKeyBlob; }
-    QByteArray authenticationKeySignature(const QByteArray &data) const;
-    QByteArray getRandomNumbers(int count) const;
+            QByteArray m_sessionId;
+            std::unique_ptr<Botan::Pipe> m_pipe;
+            std::unique_ptr<Botan::MessageAuthenticationCode> m_hMac;
+            quint32 m_cipherBlockSize;
+            quint32 m_macLength;
+        };
 
-    ~SshEncryptionFacility();
+        class SshEncryptionFacility : public SshAbstractCryptoFacility
+        {
+        public:
+            void encrypt(QByteArray &data) const;
 
-private:
-    QByteArray cryptAlgoName(const SshKeyExchange &kex) const override;
-    QByteArray hMacAlgoName(const SshKeyExchange &kex) const override;
-    Botan::Keyed_Filter *makeCipherMode(const QByteArray &cipher, const Mode mode) override;
-    char ivChar() const override { return 'A'; }
-    char keyChar() const override { return 'C'; }
-    char macChar() const override { return 'E'; }
+            void createAuthenticationKey(const QByteArray &privKeyFileContents);
+            QByteArray authenticationAlgorithmName() const;
+            QByteArray authenticationPublicKey() const { return m_authPubKeyBlob; }
+            QByteArray authenticationKeySignature(const QByteArray &data) const;
+            QByteArray getRandomNumbers(int count) const;
 
-    bool createAuthenticationKeyFromPKCS8(const QByteArray &privKeyFileContents,
-        QList<Botan::BigInt> &pubKeyParams, QList<Botan::BigInt> &allKeyParams, QString &error);
-    bool createAuthenticationKeyFromOpenSSL(const QByteArray &privKeyFileContents,
-        QList<Botan::BigInt> &pubKeyParams, QList<Botan::BigInt> &allKeyParams, QString &error);
+            ~SshEncryptionFacility();
 
-    static const QByteArray PrivKeyFileStartLineRsa;
-    static const QByteArray PrivKeyFileStartLineDsa;
-    static const QByteArray PrivKeyFileEndLineRsa;
-    static const QByteArray PrivKeyFileEndLineDsa;
-    static const QByteArray PrivKeyFileStartLineEcdsa;
-    static const QByteArray PrivKeyFileEndLineEcdsa;
+        private:
+            QByteArray cryptAlgoName(const SshKeyExchange &kex) const override;
+            QByteArray hMacAlgoName(const SshKeyExchange &kex) const override;
+            Botan::Keyed_Filter *makeCipherMode(const QByteArray &cipher, const Mode mode) override;
+            char ivChar() const override { return 'A'; }
+            char keyChar() const override { return 'C'; }
+            char macChar() const override { return 'E'; }
 
-    QByteArray m_authKeyAlgoName;
-    QByteArray m_authPubKeyBlob;
-    QByteArray m_cachedPrivKeyContents;
-    QScopedPointer<Botan::Private_Key> m_authKey;
-    mutable Botan::AutoSeeded_RNG m_rng;
-};
+            bool createAuthenticationKeyFromPKCS8(const QByteArray &privKeyFileContents,
+                                                  QList<Botan::BigInt> &pubKeyParams, QList<Botan::BigInt> &allKeyParams, QString &error);
+            bool createAuthenticationKeyFromOpenSSL(const QByteArray &privKeyFileContents,
+                                                    QList<Botan::BigInt> &pubKeyParams, QList<Botan::BigInt> &allKeyParams, QString &error);
 
-class SshDecryptionFacility : public SshAbstractCryptoFacility
-{
-public:
-    void decrypt(QByteArray &data, quint32 offset, quint32 dataSize) const;
+            static const QByteArray PrivKeyFileStartLineRsa;
+            static const QByteArray PrivKeyFileStartLineDsa;
+            static const QByteArray PrivKeyFileEndLineRsa;
+            static const QByteArray PrivKeyFileEndLineDsa;
+            static const QByteArray PrivKeyFileStartLineEcdsa;
+            static const QByteArray PrivKeyFileEndLineEcdsa;
 
-private:
-    QByteArray cryptAlgoName(const SshKeyExchange &kex) const override;
-    QByteArray hMacAlgoName(const SshKeyExchange &kex) const override;
-    Botan::Keyed_Filter *makeCipherMode(const QByteArray &cipher, const Mode mode) override;
-    char ivChar() const override { return 'B'; }
-    char keyChar() const override { return 'D'; }
-    char macChar() const override { return 'F'; }
-};
+            QByteArray m_authKeyAlgoName;
+            QByteArray m_authPubKeyBlob;
+            QByteArray m_cachedPrivKeyContents;
+            QScopedPointer<Botan::Private_Key> m_authKey;
+            mutable Botan::AutoSeeded_RNG m_rng;
+        };
 
-} // namespace Internal
+        class SshDecryptionFacility : public SshAbstractCryptoFacility
+        {
+        public:
+            void decrypt(QByteArray &data, quint32 offset, quint32 dataSize) const;
+
+        private:
+            QByteArray cryptAlgoName(const SshKeyExchange &kex) const override;
+            QByteArray hMacAlgoName(const SshKeyExchange &kex) const override;
+            Botan::Keyed_Filter *makeCipherMode(const QByteArray &cipher, const Mode mode) override;
+            char ivChar() const override { return 'B'; }
+            char keyChar() const override { return 'D'; }
+            char macChar() const override { return 'F'; }
+        };
+
+    } // namespace Internal
 } // namespace QSsh
 
 #endif // SSHABSTRACTCRYPTOFACILITY_P_H
