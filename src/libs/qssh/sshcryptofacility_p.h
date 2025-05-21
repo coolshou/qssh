@@ -42,6 +42,7 @@
 #include <botan/bigint.h>
 #include <botan/pk_keys.h>
 #include <botan/auto_rng.h>
+#include <botan/mac.h>
 
 #include <QByteArray>
 #include <QScopedPointer>
