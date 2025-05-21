@@ -61,6 +61,7 @@ QT += widgets
 # CONFIG += warn_on
 
 # Find botan2
+unix: {
 CONFIG += link_pkgconfig
 PKGCONFIG += botan-2
 
@@ -69,6 +70,7 @@ CONFIG += depend_includepath
 LIBS += -L$$IDE_LIBRARY_PATH
 LIBS += -l$$qtLibraryName(botan-2)
 INCLUDEPATH += $${PWD}/src/libs/
+}
 
 DEFINES += QT_NO_CAST_FROM_ASCII
 DEFINES += QT_NO_CAST_TO_ASCII
