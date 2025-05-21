@@ -77,4 +77,8 @@ DEFINES += QT_USE_QSTRINGBUILDER
 win32-msvc* {
     #Don't warn about sprintf, fopen etc being 'unsafe'
     DEFINES += _CRT_SECURE_NO_WARNINGS
+    LIBS += \
+        -L$${PWD}/botan/build/include/botan \
+        -L$${PWD}/botan/build/include
+    LIBS += -l$${PWD}/botan/botan.lib
 }
