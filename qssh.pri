@@ -61,15 +61,26 @@ QT += widgets
 # CONFIG += warn_on
 
 # Find botan2
+USE_SYSTEM_BOTAN = false
+
 unix: {
-CONFIG += link_pkgconfig
-PKGCONFIG += botan-2
+    INCLUDEPATH += $${PWD}/src/libs/
 
-CONFIG += depend_includepath
-
-LIBS += -L$$IDE_LIBRARY_PATH
-LIBS += -l$$qtLibraryName(botan-2)
-INCLUDEPATH += $${PWD}/src/libs/
+    equals(USE_SYSTEM_BOTAN, true) {
+        CONFIG += link_pkgconfig
+        PKGCONFIG += botan-2
+        CONFIG += depend_includepath
+        LIBS += -L$$IDE_LIBRARY_PATH
+        LIBS += -l$$qtLibraryName(botan-2)
+    } else {
+        INCLUDEPATH += $${PWD}/botan/build/include
+        LIBS += \
+            -L$${PWD}/botan/build/include \
+            -L$${PWD}/botan/
+        LIBS += $${PWD}/botan/libbotan-2.a
+        #LIBS += -l:libbotan-2.a
+        LIBS += $${PWD}/lib/libQSsh.a
+    }
 }
 
 DEFINES += QT_NO_CAST_FROM_ASCII
@@ -80,7 +91,8 @@ win32-msvc* {
     #Don't warn about sprintf, fopen etc being 'unsafe'
     DEFINES += _CRT_SECURE_NO_WARNINGS
     LIBS += \
-        -L$${PWD}/botan/build/include/botan \
         -L$${PWD}/botan/build/include
-    LIBS += -l$${PWD}/botan/botan.lib
+        
+    LIBS += $${PWD}/botan/botan.lib
+    LIBS += $${PWD}/lib/libQSsh.lib
 }
