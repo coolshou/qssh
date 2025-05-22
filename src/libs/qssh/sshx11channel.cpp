@@ -65,8 +65,10 @@ namespace QSsh
                                                                   : QLatin1String("/tmp/.X11-unix/X");
                     QLocalSocket *const socket = new QLocalSocket(this);
                     connect(socket, &QLocalSocket::connected, this, &X11Socket::connected);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
                     connect(socket, &QLocalSocket::errorOccurred, this, [this, socket]
                             { emit error(socket->errorString()); });
+#endif
                     socket->connectToServer(serverBasePath + QString::number(displayInfo.display));
                     m_socket = socket;
                 }
