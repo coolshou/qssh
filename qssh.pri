@@ -59,13 +59,12 @@ clang {
 QT += widgets
 
 # CONFIG += warn_on
+INCLUDEPATH += $${PWD}/src/libs/
 
 # Find botan2
 USE_SYSTEM_BOTAN = false
 
 unix: {
-    INCLUDEPATH += $${PWD}/src/libs/
-
     equals(USE_SYSTEM_BOTAN, true) {
         CONFIG += link_pkgconfig
         PKGCONFIG += botan-2
