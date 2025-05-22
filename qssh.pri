@@ -90,7 +90,7 @@ win32-msvc* {
         # use system installed botan?
     }else{
         INCLUDEPATH += $${PWD}/botan/build/include
-        LIBS += -L$${PWD}/lib/   $${PWD}/lib/libQSsh.lib
+        LIBS += -L$${PWD}/lib/   $${PWD}/lib/QSsh.lib
         LIBS += -L$${PWD}/botan/ $${PWD}/botan/botan.lib
     }
 }
