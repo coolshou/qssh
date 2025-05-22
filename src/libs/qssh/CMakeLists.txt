@@ -45,7 +45,6 @@ target_include_directories(QSsh
 		  $<INSTALL_INTERFACE:include>
           $<INSTALL_INTERFACE:include/qssh>
           )
-		  
 #INSTALL RULES
 install(
   DIRECTORY .
