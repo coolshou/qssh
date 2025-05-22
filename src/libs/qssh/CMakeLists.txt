@@ -1,4 +1,4 @@
-add_library(QSsh
+add_library(QSsh SHARED
     sshsendfacility.cpp
     sshremoteprocess.cpp
     sshpacketparser.cpp
