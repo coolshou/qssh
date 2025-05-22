@@ -87,6 +87,11 @@ DEFINES += QT_USE_QSTRINGBUILDER
 win32-msvc* {
     #Don't warn about sprintf, fopen etc being 'unsafe'
     DEFINES += _CRT_SECURE_NO_WARNINGS
-    LIBS += -L$${PWD}/lib/   $${PWD}/lib/libQSsh.lib
-    LIBS += -L$${PWD}/botan/ $${PWD}/botan/botan.lib
+    equals(USE_SYSTEM_BOTAN, true) {
+        # use system installed botan?
+    }else{
+        INCLUDEPATH += $${PWD}/botan/build/include
+        LIBS += -L$${PWD}/lib/   $${PWD}/lib/libQSsh.lib
+        LIBS += -L$${PWD}/botan/ $${PWD}/botan/botan.lib
+    }
 }
