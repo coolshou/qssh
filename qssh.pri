@@ -74,12 +74,8 @@ unix: {
         LIBS += -l$$qtLibraryName(botan-2)
     } else {
         INCLUDEPATH += $${PWD}/botan/build/include
-        LIBS += \
-            -L$${PWD}/botan/build/include \
-            -L$${PWD}/botan/
-        LIBS += $${PWD}/botan/libbotan-2.a
-        #LIBS += -l:libbotan-2.a
-        LIBS += $${PWD}/lib/libQSsh.a
+        LIBS += -L$${PWD}/botan/ $${PWD}/botan/libbotan-2.a
+        LIBS += -L$${PWD}/lib/   $${PWD}/lib/libQSsh.a
     }
 }
 
@@ -90,9 +86,6 @@ DEFINES += QT_USE_QSTRINGBUILDER
 win32-msvc* {
     #Don't warn about sprintf, fopen etc being 'unsafe'
     DEFINES += _CRT_SECURE_NO_WARNINGS
-    LIBS += \
-        -L$${PWD}/botan/build/include
-        
-    LIBS += $${PWD}/botan/botan.lib
-    LIBS += $${PWD}/lib/libQSsh.lib
+    LIBS += -L$${PWD}/botan/ $${PWD}/botan/botan.lib
+    LIBS += -L$${PWD}/lib/   $${PWD}/lib/libQSsh.lib
 }
