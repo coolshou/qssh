@@ -35,6 +35,7 @@
 #include <QCoreApplication>
 #include <QTextStream>
 #include <QTimer>
+#include <QDebug>
 
 #include <iostream>
 
@@ -51,6 +52,9 @@ RemoteProcessTest::RemoteProcessTest(const SshConnectionParameters &params)
 {
     m_timeoutTimer->setInterval(5000);
     connect(m_timeoutTimer, SIGNAL(timeout()), SLOT(handleTimeout()));
+    qDebug() << "m_sshParams:" << m_sshParams.host()
+             << " user:" << m_sshParams.userName()
+             << " pw:" << m_sshParams.password();
 }
 
 RemoteProcessTest::~RemoteProcessTest()
@@ -73,7 +77,8 @@ void RemoteProcessTest::run()
     m_state = TestingSuccess;
     m_started = false;
     m_timeoutTimer->start();
-    m_remoteRunner->run("ls -a /tmp", m_sshParams);
+    // m_remoteRunner->run("ls -a /tmp", m_sshParams);
+    m_remoteRunner->run("sensors_call_so", m_sshParams);
 }
 
 void RemoteProcessTest::handleConnectionError()
@@ -158,12 +163,12 @@ void RemoteProcessTest::handleProcessClosed(int exitStatus)
                 QCoreApplication::exit(EXIT_FAILURE);
                 return;
             }
-
-            std::cout << "Ok.\nTesting unsuccessful remote process... " << std::flush;
-            m_state = TestingFailure;
-            m_started = false;
-            m_timeoutTimer->start();
-            m_remoteRunner->run("top -n 1", m_sshParams); // Does not succeed without terminal.
+            qDebug() << "\n" << QString::fromUtf8(m_remoteStdout) << "\n";
+            // std::cout << "Ok.\nTesting unsuccessful remote process... " << std::flush;
+            // m_state = TestingFailure;
+            // m_started = false;
+            // m_timeoutTimer->start();
+            // m_remoteRunner->run("top -n 1", m_sshParams); // Does not succeed without terminal.
             break;
         }
         case TestingFailure: {

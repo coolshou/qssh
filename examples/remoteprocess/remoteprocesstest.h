@@ -35,6 +35,7 @@
 
 #include <QObject>
 #include <QScopedPointer>
+#include <QTimer>
 
 QT_FORWARD_DECLARE_CLASS(QTextStream)
 QT_FORWARD_DECLARE_CLASS(QTimer)
