@@ -73,7 +73,6 @@ unix: {
         LIBS += -l$$qtLibraryName(botan-2)
     } else {
         INCLUDEPATH += $${PWD}/botan/build/include
-        LIBS += -L$${PWD}/lib/   $${PWD}/lib/libQSsh.a
         LIBS += -L$${PWD}/botan/ $${PWD}/botan/libbotan-2.a
     }
 }
