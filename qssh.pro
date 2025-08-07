@@ -4,6 +4,6 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x050F00
 
 
 SUBDIRS = \
-    src \
-    examples
+    src
+    #examples
     #tests
