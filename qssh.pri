@@ -63,6 +63,8 @@ INCLUDEPATH += $${PWD}/src/libs/
 
 # Find botan2
 USE_SYSTEM_BOTAN = false
+isEmpty(BOTANPATH): BOTANPATH = $${PWD}/botan
+isEmpty(BOTANINCPATH): BOTANINCPATH = $${PWD}/botan/build/include
 
 unix: {
     equals(USE_SYSTEM_BOTAN, true) {
@@ -72,8 +74,8 @@ unix: {
         LIBS += -L$$IDE_LIBRARY_PATH
         LIBS += -l$$qtLibraryName(botan-2)
     } else {
-        INCLUDEPATH += $${PWD}/botan/build/include
-        LIBS += -L$${PWD}/botan/ $${PWD}/botan/libbotan-2.a
+        INCLUDEPATH += $$BOTANINCPATH
+        LIBS += -L$$BOTANPATH/ $$BOTANPATH/libbotan-2.a
     }
 }
 
