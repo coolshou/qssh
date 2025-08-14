@@ -4,6 +4,8 @@ QT += network
 DEFINES += QTCSSH_LIBRARY
 
 CONFIG += staticlib
+#CONFIG += shared
+#CONFIG += shared_and_static build_all
 
 #Enable debug log
 #DEFINES += CREATOR_SSH_DEBUG
