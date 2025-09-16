@@ -34,6 +34,9 @@
 #include "sftpdefs.h"
 #include "sshexception_p.h"
 #include "sshincomingpacket_p.h"
+#include "sshoutgoingpacket_p.h"
+#include "sftpoutgoingpacket_p.h"
+#include "sftpincomingpacket_p.h"
 #include "sshlogging_p.h"
 #include "sshsendfacility_p.h"
 

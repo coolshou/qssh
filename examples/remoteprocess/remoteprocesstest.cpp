@@ -59,32 +59,34 @@ RemoteProcessTest::RemoteProcessTest(const SshConnectionParameters &params)
 
 RemoteProcessTest::~RemoteProcessTest()
 {
+    m_timeoutTimer->stop();
     delete m_sshConnection;
 }
 
 void RemoteProcessTest::run()
 {
     connect(m_remoteRunner, SIGNAL(connectionError()),
-        SLOT(handleConnectionError()));
+            SLOT(handleConnectionError()));
     connect(m_remoteRunner, SIGNAL(processStarted()),
-        SLOT(handleProcessStarted()));
+            SLOT(handleProcessStarted()));
     connect(m_remoteRunner, SIGNAL(readyReadStandardOutput()), SLOT(handleProcessStdout()));
     connect(m_remoteRunner, SIGNAL(readyReadStandardError()), SLOT(handleProcessStderr()));
     connect(m_remoteRunner, SIGNAL(processClosed(int)),
-        SLOT(handleProcessClosed(int)));
+            SLOT(handleProcessClosed(int)));
 
     std::cout << "Testing successful remote process... " << std::flush;
     m_state = TestingSuccess;
     m_started = false;
     m_timeoutTimer->start();
     // m_remoteRunner->run("ls -a /tmp", m_sshParams);
-    m_remoteRunner->run("sensors_call_so", m_sshParams);
+    m_remoteRunner->run("gps_call_so", m_sshParams);
 }
 
 void RemoteProcessTest::handleConnectionError()
 {
     const QString error = m_state == TestingIoDevice || m_state == TestingProcessChannels
-        ? m_sshConnection->errorString() : m_remoteRunner->lastConnectionErrorString();
+                              ? m_sshConnection->errorString()
+                              : m_remoteRunner->lastConnectionErrorString();
 
     std::cerr << "Error: Connection failure (" << qPrintable(error) << ")." << std::endl;
     QCoreApplication::exit(EXIT_FAILURE);
@@ -92,15 +94,21 @@ void RemoteProcessTest::handleConnectionError()
 
 void RemoteProcessTest::handleProcessStarted()
 {
-    if (m_started) {
+    if (m_started)
+    {
         std::cerr << "Error: Received started() signal again." << std::endl;
         QCoreApplication::exit(EXIT_FAILURE);
-    } else {
+    }
+    else
+    {
         m_started = true;
-        if (m_state == TestingCrash) {
-            SshRemoteProcessRunner * const killer = new SshRemoteProcessRunner(this);
+        if (m_state == TestingCrash)
+        {
+            SshRemoteProcessRunner *const killer = new SshRemoteProcessRunner(this);
             killer->run("pkill -9 sleep", m_sshParams);
-        } else if (m_state == TestingIoDevice) {
+        }
+        else if (m_state == TestingIoDevice)
+        {
             connect(m_catProcess.data(), SIGNAL(readyRead()), SLOT(handleReadyRead()));
             m_textStream.reset(new QTextStream(m_catProcess.data()));
             *m_textStream << testString();
@@ -111,75 +119,99 @@ void RemoteProcessTest::handleProcessStarted()
 
 void RemoteProcessTest::handleProcessStdout()
 {
-    if (!m_started) {
+    if (!m_started)
+    {
         std::cerr << "Error: Remote output from non-started process."
-            << std::endl;
+                  << std::endl;
         QCoreApplication::exit(EXIT_FAILURE);
-    } else if (m_state != TestingSuccess && m_state != TestingTerminal) {
+    }
+    else if (m_state != TestingSuccess && m_state != TestingTerminal)
+    {
         std::cerr << "Error: Got remote standard output in state " << m_state
-            << "." << std::endl;
+                  << "." << std::endl;
         QCoreApplication::exit(EXIT_FAILURE);
-    } else {
+    }
+    else
+    {
         m_remoteStdout += m_remoteRunner->readAllStandardOutput();
     }
+    // m_timeoutTimer->stop();
+    // QCoreApplication::exit(EXIT_SUCCESS);
 }
 
 void RemoteProcessTest::handleProcessStderr()
 {
-    if (!m_started) {
+    if (!m_started)
+    {
         std::cerr << "Error: Remote error output from non-started process."
-            << std::endl;
+                  << std::endl;
         QCoreApplication::exit(EXIT_FAILURE);
-    } else if (m_state == TestingSuccess) {
+    }
+    else if (m_state == TestingSuccess)
+    {
         std::cerr << "Error: Unexpected remote standard error output."
-            << std::endl;
+                  << std::endl;
         QCoreApplication::exit(EXIT_FAILURE);
-    } else {
+    }
+    else
+    {
         m_remoteStderr += m_remoteRunner->readAllStandardError();
     }
 }
 
 void RemoteProcessTest::handleProcessClosed(int exitStatus)
 {
-    switch (exitStatus) {
+    switch (exitStatus)
+    {
     case SshRemoteProcess::NormalExit:
-        if (!m_started) {
+        if (!m_started)
+        {
             std::cerr << "Error: Process exited without starting." << std::endl;
             QCoreApplication::exit(EXIT_FAILURE);
             return;
         }
-        switch (m_state) {
-        case TestingSuccess: {
+        switch (m_state)
+        {
+        case TestingSuccess:
+        {
             const int exitCode = m_remoteRunner->processExitCode();
-            if (exitCode != 0) {
+            if (exitCode != 0)
+            {
                 std::cerr << "Error: exit code is " << exitCode
-                    << ", expected zero." << std::endl;
+                          << ", expected zero." << std::endl;
                 QCoreApplication::exit(EXIT_FAILURE);
                 return;
             }
-            if (m_remoteStdout.isEmpty()) {
+            if (m_remoteStdout.isEmpty())
+            {
                 std::cerr << "Error: Command did not produce output."
-                    << std::endl;
+                          << std::endl;
                 QCoreApplication::exit(EXIT_FAILURE);
                 return;
             }
-            qDebug() << "\n" << QString::fromUtf8(m_remoteStdout) << "\n";
+            qDebug() << "\n"
+                     << QString::fromUtf8(m_remoteStdout) << "\n";
             // std::cout << "Ok.\nTesting unsuccessful remote process... " << std::flush;
             // m_state = TestingFailure;
             // m_started = false;
             // m_timeoutTimer->start();
             // m_remoteRunner->run("top -n 1", m_sshParams); // Does not succeed without terminal.
+            m_timeoutTimer->stop();
+            // QCoreApplication::exit(EXIT_SUCCESS);
             break;
         }
-        case TestingFailure: {
+        case TestingFailure:
+        {
             const int exitCode = m_remoteRunner->processExitCode();
-            if (exitCode == 0) {
+            if (exitCode == 0)
+            {
                 std::cerr << "Error: exit code is zero, expected non-zero."
-                    << std::endl;
+                          << std::endl;
                 QCoreApplication::exit(EXIT_FAILURE);
                 return;
             }
-            if (m_remoteStderr.isEmpty()) {
+            if (m_remoteStderr.isEmpty())
+            {
                 std::cerr << "Error: Command did not produce error output." << std::flush;
                 QCoreApplication::exit(EXIT_FAILURE);
                 return;
@@ -193,26 +225,33 @@ void RemoteProcessTest::handleProcessClosed(int exitStatus)
             break;
         }
         case TestingCrash:
-            if (m_remoteRunner->processExitCode() == 0) {
+            if (m_remoteRunner->processExitCode() == 0)
+            {
                 std::cerr << "Error: Successful exit from process that was "
-                    "supposed to crash." << std::endl;
+                             "supposed to crash."
+                          << std::endl;
                 QCoreApplication::exit(EXIT_FAILURE);
-            } else {
+            }
+            else
+            {
                 // Some shells (e.g. mksh) don't report "killed", but just a non-zero exit code.
                 handleSuccessfulCrashTest();
             }
             break;
-        case TestingTerminal: {
+        case TestingTerminal:
+        {
             const int exitCode = m_remoteRunner->processExitCode();
-            if (exitCode != 0) {
+            if (exitCode != 0)
+            {
                 std::cerr << "Error: exit code is " << exitCode
-                    << ", expected zero." << std::endl;
+                          << ", expected zero." << std::endl;
                 QCoreApplication::exit(EXIT_FAILURE);
                 return;
             }
-            if (m_remoteStdout.isEmpty()) {
+            if (m_remoteStdout.isEmpty())
+            {
                 std::cerr << "Error: Command did not produce output."
-                    << std::endl;
+                          << std::endl;
                 QCoreApplication::exit(EXIT_FAILURE);
                 return;
             }
@@ -221,29 +260,34 @@ void RemoteProcessTest::handleProcessClosed(int exitStatus)
             m_sshConnection = new SshConnection(m_sshParams);
             connect(m_sshConnection, SIGNAL(connected()), SLOT(handleConnected()));
             connect(m_sshConnection, SIGNAL(error(QSsh::SshError)),
-                SLOT(handleConnectionError()));
+                    SLOT(handleConnectionError()));
             m_sshConnection->connectToHost();
             m_timeoutTimer->start();
             break;
         }
         case TestingIoDevice:
-            if (m_catProcess->exitCode() == 0) {
+            if (m_catProcess->exitCode() == 0)
+            {
                 std::cerr << "Error: Successful exit from process that was supposed to crash."
-                    << std::endl;
+                          << std::endl;
                 QCoreApplication::exit(EXIT_FAILURE);
-            } else {
+            }
+            else
+            {
                 handleSuccessfulIoTest();
             }
             break;
         case TestingProcessChannels:
-            if (m_remoteStderr.isEmpty()) {
+            if (m_remoteStderr.isEmpty())
+            {
                 std::cerr << "Error: Did not receive readyReadStderr()." << std::endl;
                 QCoreApplication::exit(EXIT_FAILURE);
                 return;
             }
-            if (m_remoteData != StderrOutput) {
+            if (m_remoteData != StderrOutput)
+            {
                 std::cerr << "Error: Expected output '" << StderrOutput.data() << "', received '"
-                    << m_remoteData.data() << "'." << std::endl;
+                          << m_remoteData.data() << "'." << std::endl;
                 QCoreApplication::exit(EXIT_FAILURE);
                 return;
             }
@@ -255,16 +299,21 @@ void RemoteProcessTest::handleProcessClosed(int exitStatus)
         }
         break;
     case SshRemoteProcess::FailedToStart:
-        if (m_started) {
+        if (m_started)
+        {
             std::cerr << "Error: Got 'failed to start' signal for process "
-                "that has not started yet." << std::endl;
-        } else {
+                         "that has not started yet."
+                      << std::endl;
+        }
+        else
+        {
             std::cerr << "Error: Process failed to start." << std::endl;
         }
         QCoreApplication::exit(EXIT_FAILURE);
         break;
     case SshRemoteProcess::CrashExit:
-        switch (m_state) {
+        switch (m_state)
+        {
         case TestingCrash:
             handleSuccessfulCrashTest();
             break;
@@ -282,7 +331,8 @@ void RemoteProcessTest::handleProcessClosed(int exitStatus)
 void RemoteProcessTest::handleTimeout()
 {
     std::cerr << "Error: Timeout waiting for progress." << std::endl;
-    QCoreApplication::exit(EXIT_FAILURE);
+    // QCoreApplication::exit(EXIT_FAILURE);
+    exit(-1);
 }
 
 void RemoteProcessTest::handleConnected()
@@ -304,15 +354,18 @@ QString RemoteProcessTest::testString() const
 
 void RemoteProcessTest::handleReadyRead()
 {
-    switch (m_state) {
-    case TestingIoDevice: {
+    switch (m_state)
+    {
+    case TestingIoDevice:
+    {
         const QString &data = QString::fromUtf8(m_catProcess->readAll());
-        if (data != testString()) {
+        if (data != testString())
+        {
             std::cerr << "Testing of QIODevice functionality failed: Expected '"
-                << qPrintable(testString()) << "', got '" << qPrintable(data) << "'." << std::endl;
+                      << qPrintable(testString()) << "', got '" << qPrintable(data) << "'." << std::endl;
             QCoreApplication::exit(EXIT_FAILURE);
         }
-        SshRemoteProcessRunner * const killer = new SshRemoteProcessRunner(this);
+        SshRemoteProcessRunner *const killer = new SshRemoteProcessRunner(this);
         killer->run("pkill -9 cat", m_sshParams);
         break;
     }
@@ -322,7 +375,6 @@ void RemoteProcessTest::handleReadyRead()
     default:
         qFatal("%s: Unexpected state %d.", Q_FUNC_INFO, m_state);
     }
-
 }
 
 void RemoteProcessTest::handleReadyReadStdout()
